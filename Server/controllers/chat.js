@@ -206,7 +206,6 @@ exports.renameGroup = async (req, res) => {
   }
 };
 
-const Chat = require("../models/Chat");
 
 // @desc    Add a user to group chat
 // @route   PUT /api/chat/add
