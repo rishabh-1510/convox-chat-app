@@ -6,7 +6,8 @@ const dns = require("dns");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-const Routes = require("./routes");
+const Routes = require("./routes")
+//userRoutes =  require("./routes/auth")
 const { Dbconnect } = require("./config/database");
 const configureSocket = require("./config/socket");
 
@@ -31,7 +32,7 @@ const server = http.createServer(app);
 configureSocket(server);
 
 // ===== ROUTES =====
-app.use("/api/v1", Routes);
+app.use("/api/v1",Routes);
 
 // ===== START SERVER =====
 server.listen(PORT, () => {

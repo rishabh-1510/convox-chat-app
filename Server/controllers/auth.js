@@ -1,14 +1,14 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const OTP = require("../models/Otp");
-
+const jwt = require("jsonwebtoken")
 const otpGenerator = require("otp-generator");
 
 exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // 1️⃣ Validate email
+    //  Validate email
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -16,7 +16,7 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    // 2️⃣ Check if user already exists
+    //  Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -25,17 +25,17 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    // 3️⃣ Delete previous OTPs for this email
+    //  Delete previous OTPs for this email
     await OTP.deleteMany({ email });
 
-    // 4️⃣ Generate OTP
+    // Generate OTP
     const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
 
-    // 5️⃣ Save OTP (email is sent via pre-save hook)
+    //  Save OTP (email is sent via pre-save hook)
     await OTP.create({
       email,
       otp,
@@ -92,12 +92,14 @@ exports.signup = async (req, res) => {
         message: "Invalid OTP",
       });
     }
+    const hashedPassword = await bcrypt.hash(password,10);  
 
     const user = await User.create({
       firstName,
       lastName,
       email,
-      password,
+      password:hashedPassword,
+      avatar:`https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
     await OTP.deleteMany({ email });
     return res.status(201).json({
