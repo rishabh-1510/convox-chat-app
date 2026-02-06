@@ -5,13 +5,15 @@ const http = require("http");
 const dns = require("dns");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
+const fileUpload = require("express-fileupload");
 const Routes = require("./routes")
 //userRoutes =  require("./routes/auth")
 const { Dbconnect } = require("./config/database");
 const configureSocket = require("./config/socket");
+const { cloudinaryConnect } = require("./config/cloudinary");
+cloudinaryConnect();
 
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
+//dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 
@@ -30,6 +32,14 @@ Dbconnect();
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
 configureSocket(server);
+
+// ===== ImageUpload =====
+app.use(
+    fileUpload({
+        useTempFiles:true,
+        tempFileDir:"/tmp"
+    })
+);
 
 // ===== ROUTES =====
 app.use("/api/v1",Routes);

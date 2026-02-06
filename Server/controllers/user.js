@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const { imageUploader } = require("../utils/imageUploader");
 
 // ======================================
 // @desc    Get logged-in user profile
