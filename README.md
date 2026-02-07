@@ -118,3 +118,48 @@ Chat App
       └─ mailSender.js
 
 ```
+```
+Chat App
+├─ Client
+│  └─ chatapp
+│     ├─ package-lock.json
+│     ├─ package.json
+│     ├─ postcss.config.js
+│     ├─ src
+│     │  ├─ App.css
+│     │  ├─ App.js
+│     │  ├─ index.css
+│     │  └─ index.js
+│     └─ tailwind.config.js
+├─ README.md
+└─ Server
+   ├─ config
+   │  ├─ cloudinary.js
+   │  ├─ database.js
+   │  └─ socket.js
+   ├─ controllers
+   │  ├─ auth.js
+   │  ├─ chat.js
+   │  ├─ message.js
+   │  └─ user.js
+   ├─ index.js
+   ├─ middlwares
+   │  └─ auth.js
+   ├─ models
+   │  ├─ Chat.js
+   │  ├─ Message.js
+   │  ├─ Otp.js
+   │  └─ User.js
+   ├─ package-lock.json
+   ├─ package.json
+   ├─ routes
+   │  ├─ auth.js
+   │  ├─ chat.js
+   │  ├─ index.js
+   │  ├─ message.js
+   │  └─ user.js
+   └─ utils
+      ├─ imageUploader.js
+      └─ mailSender.js
+
+```
