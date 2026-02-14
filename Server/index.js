@@ -13,7 +13,7 @@ const configureSocket = require("./config/socket");
 const { cloudinaryConnect } = require("./config/cloudinary");
 cloudinaryConnect();
 
-//dns.setServers(["1.1.1.1", "8.8.8.8"]);
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 

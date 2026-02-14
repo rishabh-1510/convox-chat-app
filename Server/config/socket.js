@@ -4,7 +4,7 @@ const configureSocket = (server) => {
   const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-      origin: "*", // later restrict to frontend URL
+      origin: "http://localhost:3000", // later restrict to frontend URL
       methods: ["GET", "POST"],
     },
   });
@@ -16,9 +16,16 @@ const configureSocket = (server) => {
     // SETUP USER (JOIN PERSONAL ROOM)
     // ================================
     socket.on("setup", (userData) => {
-      socket.join(userData._id); // personal room
+      if (!userData || !userData._id) {
+        console.log("⚠️ Invalid user data in setup:", userData);
+        return;
+      }
+
+      socket.join(userData._id);
+      console.log("User joined personal room:", userData._id);
       socket.emit("connected");
     });
+
 
     // ================================
     // JOIN CHAT ROOM
