@@ -67,7 +67,7 @@ const Navbar = () => {
             </Button>
           </Link>
 
-          <Link to="/singup">
+          <Link to="/signup">
             <Button
               size="sm"
               className="rounded-xl shadow-md"
