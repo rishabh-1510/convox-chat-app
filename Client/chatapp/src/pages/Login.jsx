@@ -3,36 +3,49 @@ import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, Lock, Mail, Zap, Shield, Users } from "lucide-react";
 import { Button } from "../Components/ui/button";
 import { Input } from "../Components/ui/input";
-import { toast } from "sonner";
+import { toast } from "sonner"
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setCredentials } from "../redux/slices/authSlice";
+
 import api from "../services/api";
 const Login = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try{
-      if(!email || !password ){
-        toast.error("Fill all the fields properly");
-        return;
+    if (!email || !password) {
+      toast.error("Fill all the fields properly");
+      return;
+    }
+    try {
+
+      dispatch(setLoading(true));
+      const res = await api.post("/auth/login", { email, password });
+      if (res.data.success) {
+        dispatch(
+          setCredentials({
+            user: res.data.user,
+            token: res.data.token
+          })
+        )
       }
-      setLoading(true);
-      const res=await api.post("/auth/login", { email,password });
-      console.log(res)
+
       toast.success(`Welcome Back ${res.data.user.firstName}`);
-      navigate('/')
+      navigate('/chat')
 
     }
-    catch(error){
+    catch (error) {
       console.log(error);
       console.log(error.response?.data);
 
       toast.error(error.response.data.message)
-    }finally{
-      setLoading(false);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
@@ -88,10 +101,13 @@ const Login = () => {
 
             <Button
               type="submit"
+              disabled={loading}
               className="h-11 w-full gap-2 bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-sm font-semibold shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
             >
-              Sign in <ArrowRight className="h-4 w-4" />
+              {loading ? "Signing in..." : "Sign in"}
+              {!loading && <ArrowRight className="h-4 w-4" />}
             </Button>
+
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
