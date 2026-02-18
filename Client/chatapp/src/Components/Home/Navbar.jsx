@@ -1,8 +1,13 @@
 import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const { token } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
@@ -56,29 +61,48 @@ const Navbar = () => {
 
         {/* ACTION BUTTONS */}
         <div className="flex items-center gap-3">
-          <Link to="/login">
-            <Button
+          {
+            token ? (<div>
+              <Button
+                size="sm"
+                onClick={() => navigate("/chat")}
+                className="rounded-xl px-5 font-semibold text-sm transition-all duration-300 hover:scale-105 shadow-lg shadow-[hsl(228,76%,60%)]/25"
+                style={{
+                  background: "linear-gradient(135deg, hsl(228,76%,55%), hsl(252,70%,50%))",
+                  color: "white"
+                }}
+              >
+                Go to Chat
+              </Button>
+            </div>) : (
+              <div>
 
-              variant="ghost"
-              size="sm"
-              className="opacity-80 hover:opacity-100"
-            >
-              Log in
-            </Button>
-          </Link>
+                <Link to="/login">
+                  <Button
 
-          <Link to="/signup">
-            <Button
-              size="sm"
-              className="rounded-xl shadow-md"
-              style={{
-                background: "hsl(var(--primary))",
-                color: "hsl(var(--background))"
-              }}
-            >
-              Sign up
-            </Button>
-          </Link>
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-80 hover:opacity-100"
+                  >
+                    Log in
+                  </Button>
+                </Link>
+
+                <Link to="/signup">
+                  <Button
+                    size="sm"
+                    className="rounded-xl shadow-md"
+                    style={{
+                      background: "hsl(var(--primary))",
+                      color: "hsl(var(--background))"
+                    }}
+                  >
+                    Sign up
+                  </Button>
+                </Link>
+              </div>
+            )
+          }
 
 
         </div>

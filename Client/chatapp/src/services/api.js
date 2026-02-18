@@ -1,14 +1,16 @@
 import axios from "axios";
+import store from "../redux/store";
+import { logout } from "../redux/slices/authSlice";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // important if using cookies
+  withCredentials: true,
 });
 
-// Attach token automatically
+// 🔐 Attach token from Redux (NOT directly from localStorage)
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = store.getState().auth.token;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -19,15 +21,20 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Optional: Global response error handler
+// 🚨 Global 401 handler
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log("Unauthorized - token may be expired");
-      // optionally redirect to login
-      // window.location.href = "/login";
+      console.log("Token expired or unauthorized");
+
+      // Clear redux + localStorage
+      store.dispatch(logout());
+
+      // Redirect safely
+      window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );

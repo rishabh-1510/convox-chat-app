@@ -3,43 +3,58 @@ import { Phone, Video, MoreVertical, Smile, Paperclip, Send } from "lucide-react
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
+import api from "../../services/api";
+import { getSocket } from "../../services/socket";
+import { useSelector } from "react-redux";
 
-// dummy data (frontend only)
-const contacts = [
-  { id: "1", name: "John Doe", avatar: "JD", online: true },
-  { id: "2", name: "Sarah Smith", avatar: "SS", online: false },
-];
-
-const demoMessages = [
-  { id: "m1", text: "Hey, how are you?", isOutgoing: false, timestamp: "10:02 AM" },
-  { id: "m2", text: "I'm good, what about you?", isOutgoing: true, timestamp: "10:03 AM" },
-];
- 
-export function ChatArea({ activeContactId }) {
-  const [messages, setMessages] = useState(demoMessages);
+export function ChatArea({ selectedChat, messages, setMessages }) {
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
+  const { user } = useSelector((state) => state.auth);
 
-  const contact = contacts.find((c) => c.id === activeContactId);
+  const socket = getSocket();
 
+  // Scroll to bottom when new message comes
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, activeContactId]);
+  }, [messages]);
 
-  if (!contact) return null;
+  //  Listen for real-time incoming messages
+  useEffect(() => {
+    if (!socket) return;
 
-  const handleSend = () => {
+    socket.on("message received", (newMessage) => {
+      if (selectedChat && newMessage.chat._id === selectedChat._id) {
+        setMessages((prev) => [...prev, newMessage]);
+      }
+    });
+
+    return () => socket.off("message received");
+  }, [socket, selectedChat]);
+
+  if (!selectedChat) {
+    return (
+      <div className="flex flex-1 items-center justify-center text-muted-foreground">
+        Select a chat to start messaging
+      </div>
+    );
+  }
+
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const newMessage = {
-      id: Date.now().toString(),
-      text: input,
-      isOutgoing: true,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
+    try {
+      const res = await api.post("/message", {
+        content: input,
+        chatId: selectedChat._id,
+      });
 
-    setMessages((prev) => [...prev, newMessage]);
-    setInput("");
+      setMessages((prev) => [...prev, res.data]);
+      socket.emit("new message", res.data);
+      setInput("");
+    } catch (err) {
+      console.log("Send message error:", err);
+    }
   };
 
   return (
@@ -49,17 +64,13 @@ export function ChatArea({ activeContactId }) {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-semibold text-white">
-              {contact.avatar}
+              {selectedChat.chatName?.charAt(0) || "C"}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-sm font-semibold text-foreground">{contact.name}</h2>
-            {contact.online && (
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-xs text-emerald-400">Online</span>
-              </div>
-            )}
+            <h2 className="text-sm font-semibold text-foreground">
+              {selectedChat.chatName}
+            </h2>
           </div>
         </div>
 
@@ -79,31 +90,36 @@ export function ChatArea({ activeContactId }) {
       {/* Messages */}
       <ScrollArea className="flex-1 px-6 py-4">
         <div className="space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.isOutgoing ? "justify-end" : "justify-start"}`}
-            >
-              <div className="max-w-[65%] space-y-1">
-                <div
-                  className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.isOutgoing
-                      ? "rounded-br-md bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-white"
-                      : "rounded-bl-md bg-secondary text-foreground"
-                  }`}
-                >
-                  {msg.text}
+          {messages.map((msg) => {
+            const isOutgoing = msg.sender._id === user._id;
+
+            return (
+              <div
+                key={msg._id}
+                className={`flex ${isOutgoing ? "justify-end" : "justify-start"}`}
+              >
+                <div className="max-w-[65%] space-y-1">
+                  <div
+                    className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isOutgoing
+                        ? "rounded-br-md bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-white"
+                        : "rounded-bl-md bg-secondary text-foreground"
+                      }`}
+                  >
+                    {msg.content}
+                  </div>
+                  <p
+                    className={`text-[10px] text-muted-foreground ${isOutgoing ? "text-right" : "text-left"
+                      }`}
+                  >
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
-                <p
-                  className={`text-[10px] text-muted-foreground ${
-                    msg.isOutgoing ? "text-right" : "text-left"
-                  }`}
-                >
-                  {msg.timestamp}
-                </p>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <div ref={bottomRef} />
         </div>
@@ -122,6 +138,7 @@ export function ChatArea({ activeContactId }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
           />
 
           <button className="text-muted-foreground hover:text-foreground">

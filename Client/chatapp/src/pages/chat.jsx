@@ -1,18 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatSiderbar } from "../Components/chat/ChatSiderbar";
 import { ChatArea } from "../Components/chat/ChatArea";
-
+import api from "../services/api";
 const Chat = () => {
-  const [activeContactId, setActiveContactId] = useState("1");
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+
+  //Fetch messages when chat changes
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedChat) return;
+
+      try {
+        const res = await api.get(`/message/${selectedChat._id}`);
+        setMessages(res.data);
+      } catch (err) {
+        console.log("Error fetching messages:", err);
+      }
+    };
+
+    fetchMessages();
+  }, [selectedChat]);
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <ChatSiderbar
-        activeContactId={activeContactId}
-        onSelectContact={setActiveContactId}
+        selectedChat={selectedChat}
+        setSelectedChat={setSelectedChat}
       />
 
-      <ChatArea activeContactId={activeContactId} />
+      <ChatArea 
+      selectedChat={selectedChat}
+        messages={messages}
+        setMessages={setMessages} />
     </div>
   );
 };
