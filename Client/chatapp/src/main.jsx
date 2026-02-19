@@ -8,11 +8,11 @@ import { Toaster } from "./components/ui/sonner.jsx"
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <div>
     <Provider store={store}>
       <Toaster />
       <App />
     </Provider>
 
-  </StrictMode>,
+  </div>,
 )

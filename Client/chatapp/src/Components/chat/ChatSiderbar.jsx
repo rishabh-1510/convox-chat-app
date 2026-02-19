@@ -20,7 +20,7 @@ const avatarColors = [
   "from-amber-500 to-orange-600",
 ];
 
-export function ChatSiderbar({ activeContactId, onSelectContact }) {
+export function ChatSiderbar({ selectedChat, setSelectedChat }) {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -30,14 +30,15 @@ export function ChatSiderbar({ activeContactId, onSelectContact }) {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  console.log("chats are", chats)
   // 🔹 Fetch existing chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const res = await api.get("/chat");
+        console.log("res is", res);
         setChats(res.data.chats);
-        
+
       } catch (err) {
         console.log(err);
       }
@@ -67,23 +68,28 @@ export function ChatSiderbar({ activeContactId, onSelectContact }) {
   }, [search]);
 
   // 🔹 Start new conversation
-  const startConversation = async (userId) => {
+  const startConversation = async (userObj) => {
     try {
-      const res = await api.post("/chat/start", { userId });
-      const chatId = res.data.chat._id;
+      const res = await api.post("/chat/start", { userId: userObj._id });
+      const chat = res.data.chat;
 
-      onSelectContact(chatId);
+      setSelectedChat(chat);
+
+      setChats((prev) => {
+        const filtered = prev.filter((c) => c._id !== chat._id);
+        return [chat, ...filtered];
+      });
+
       setSearch("");
       setSearchResults([]);
     } catch (err) {
-      console.log(err);
       toast.error("Failed to start conversation");
     }
   };
 
   return (
     <div className="flex h-full w-80 flex-col border-r border-border bg-card">
-      
+
       {/* HEADER */}
       <div className="flex items-center justify-between px-5 py-5">
         <div
@@ -141,19 +147,19 @@ export function ChatSiderbar({ activeContactId, onSelectContact }) {
                   key={u._id}
                   contact={{
                     _id: u._id,
-                    name: u.firstName+' '+u.lastName,
-                    avatar: <img src={`${u.avatar}`}/>,
+                    name: u.firstName + ' ' + u.lastName,
+                    avatar: <img src={`${u.avatar}`} />,
                     online: false,
                     lastMessage: "Start conversation",
                     timestamp: "",
                     unread: 0,
                   }}
                   colorClass={avatarColors[i % avatarColors.length]}
-                  isActive={u._id === activeContactId}
-                  onClick={() => startConversation(u._id)}
+                  isActive={u._id === selectedChat?._id}
+                  onClick={() => startConversation(u)}
                 />
               ))
-              
+
             )
           ) : (
             /* 💬 CHAT MODE */
@@ -162,15 +168,29 @@ export function ChatSiderbar({ activeContactId, onSelectContact }) {
                 No conversations yet
               </div>
             ) : (
-              chats.map((contact, i) => (
-                <ContactItem
-                  key={contact._id}
-                  contact={contact}
-                  colorClass={avatarColors[i % avatarColors.length]}
-                  isActive={contact._id === activeContactId}
-                  onClick={() => onSelectContact(contact._id)}
-                />
-              ))
+              chats.map((chat, i) => {
+                const otherUser = chat.users.find(
+                  (u) => u._id !== user.id   // IMPORTANT: use user.id (not _id)
+                );
+
+                return (
+                  <ContactItem
+                    key={chat._id}
+                    contact={{
+                      _id: chat._id,
+                      name: otherUser?.firstName,
+                      avatar: <img src={`${otherUser?.avatar}`}/>,
+                      online: false,
+                      lastMessage: chat.latestMessage?.content || "",
+                      unread: 0,
+                    }}
+                    colorClass={avatarColors[i % avatarColors.length]}
+                    isActive={chat._id === selectedChat?._id}
+                    onClick={() => setSelectedChat(chat)}
+                  />
+                );
+              })
+
             )
           )}
         </div>
@@ -206,11 +226,10 @@ function ContactItem({ contact, colorClass, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${
-        isActive
-          ? "bg-secondary shadow-sm shadow-[hsl(228,76%,60%)]/10"
-          : "hover:bg-muted/60"
-      }`}
+      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200 ${isActive
+        ? "bg-secondary shadow-sm shadow-[hsl(228,76%,60%)]/10"
+        : "hover:bg-muted/60"
+        }`}
     >
       <div className="relative shrink-0">
         <Avatar className="h-11 w-11">

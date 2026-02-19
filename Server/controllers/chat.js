@@ -57,13 +57,63 @@ exports.accessChat = async (req, res) => {
     });
   }
 };
+// controllers/chatController.js
+
+
+exports.startChat = async (req, res) => {
+  try {
+    const { userId } = req.body; // person you want to chat with
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "UserId is required",
+      });
+    }
+
+    // Check if chat already exists
+    let existingChat = await Chat.findOne({
+      isGroupChat: false,
+      users: { $all: [req.user.id, userId] },
+    }).populate("users", "-password");
+
+    if (existingChat) {
+      return res.status(200).json({
+        success: true,
+        chat: existingChat,
+      });
+    }
+
+    // Create new chat
+    const newChat = await Chat.create({
+      isGroupChat: false,
+      users: [req.user.id, userId],
+    });
+
+    const fullChat = await Chat.findById(newChat._id)
+      .populate("users", "-password");
+
+    res.status(201).json({
+      success: true,
+      chat: fullChat,
+    });
+
+  } catch (error) {
+    console.error(error);
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to start chat",
+    });
+  }
+};
 
 exports.fetchChats = async (req, res) => {
   try {
     const userId = req.user.id;
 
     //  Find all chats where user is a participant
-    let chats = await Chat.find({
+    let chats = await Chat.find({ 
       users: { $elemMatch: { $eq: userId } },
     })
       .populate("users", "-password")

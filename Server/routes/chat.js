@@ -6,6 +6,7 @@ const {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  startChat
 } = require("../controllers/chat");
 const { auth } = require("../middlwares/auth");
 
@@ -14,7 +15,7 @@ const router = express.Router();
 // personal chat
 router.post("/", auth, accessChat);
 router.get("/", auth, fetchChats);
-
+router.post("/start", auth, startChat);
 // group chat
 router.post("/group", auth, createGroupChat);
 router.put("/rename", auth, renameGroup);

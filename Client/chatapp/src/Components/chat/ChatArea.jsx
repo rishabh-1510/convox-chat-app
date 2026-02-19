@@ -8,13 +8,17 @@ import { getSocket } from "../../services/socket";
 import { useSelector } from "react-redux";
 
 export function ChatArea({ selectedChat, messages, setMessages }) {
+
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
 
   const socket = getSocket();
-
+  console.log("selected chat", selectedChat)
   // Scroll to bottom when new message comes
+
+
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -31,7 +35,7 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
 
     return () => socket.off("message received");
   }, [socket, selectedChat]);
-
+  const chatBoxUser = selectedChat?.users?.filter(suser => suser._id!=user.id);
   if (!selectedChat) {
     return (
       <div className="flex flex-1 items-center justify-center text-muted-foreground">
@@ -43,19 +47,24 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    const messageToSend = input;
+    setInput(""); // clear immediately
+
     try {
       const res = await api.post("/message", {
-        content: input,
+        content: messageToSend,
         chatId: selectedChat._id,
       });
 
-      setMessages((prev) => [...prev, res.data]);
-      socket.emit("new message", res.data);
-      setInput("");
+      const newMessage = res.data.message;
+
+      setMessages((prev) => [...prev, newMessage]);
+      socket.emit("new message", newMessage);
     } catch (err) {
       console.log("Send message error:", err);
     }
   };
+  console.log("chatbooox",chatBoxUser)
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">
@@ -64,12 +73,12 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-xs font-semibold text-white">
-              {selectedChat.chatName?.charAt(0) || "C"}
+              {<img src={`${chatBoxUser[0]?.avatar}`} /> || "C"}
             </AvatarFallback>
           </Avatar>
           <div>
             <h2 className="text-sm font-semibold text-foreground">
-              {selectedChat.chatName}
+              {`${chatBoxUser[0]?.firstName} ${chatBoxUser[0]?.lastName}`}
             </h2>
           </div>
         </div>
@@ -88,42 +97,49 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-6 py-4">
-        <div className="space-y-4">
-          {messages.map((msg) => {
-            const isOutgoing = msg.sender._id === user._id;
+      {/* Messages */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full px-6 py-4">
+          <div className="space-y-4">
+            {Array.isArray(messages) &&
+              messages.map((msg) => {
+                const isOutgoing = msg?.sender?._id == user?.id;
 
-            return (
-              <div
-                key={msg._id}
-                className={`flex ${isOutgoing ? "justify-end" : "justify-start"}`}
-              >
-                <div className="max-w-[65%] space-y-1">
+                return (
                   <div
-                    className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isOutgoing
-                        ? "rounded-br-md bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-white"
-                        : "rounded-bl-md bg-secondary text-foreground"
-                      }`}
+                    key={msg._id}
+                    className={`flex ${isOutgoing ? "justify-end" : "justify-start"}`}
                   >
-                    {msg.content}
-                  </div>
-                  <p
-                    className={`text-[10px] text-muted-foreground ${isOutgoing ? "text-right" : "text-left"
-                      }`}
-                  >
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+                    <div className="max-w-[65%] space-y-1">
+                      <div
+                        className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${isOutgoing
+                          ? "rounded-br-md bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-white"
+                          : "rounded-bl-md bg-secondary text-foreground"
+                          }`}
+                      >
+                        {msg.content}
+                      </div>
 
-          <div ref={bottomRef} />
-        </div>
-      </ScrollArea>
+                      <p
+                        className={`text-[10px] text-muted-foreground ${isOutgoing ? "text-right" : "text-left"
+                          }`}
+                      >
+                        {msg.createdAt
+                          ? new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+
+            <div ref={bottomRef} />
+          </div>
+        </ScrollArea>
+      </div>
 
       {/* Input Bar */}
       <div className="border-t border-border px-6 py-4">
@@ -138,7 +154,12 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
           />
 
           <button className="text-muted-foreground hover:text-foreground">

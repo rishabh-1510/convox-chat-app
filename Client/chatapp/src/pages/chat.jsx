@@ -13,7 +13,8 @@ const Chat = () => {
 
       try {
         const res = await api.get(`/message/${selectedChat._id}`);
-        setMessages(res.data);
+        console.log("res is",res);
+        setMessages(res.data.messages);
       } catch (err) {
         console.log("Error fetching messages:", err);
       }
