@@ -30,13 +30,12 @@ export function ChatSiderbar({ selectedChat, setSelectedChat }) {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  console.log("chats are", chats)
   // 🔹 Fetch existing chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const res = await api.get("/chat");
-        console.log("res is", res);
+        
         setChats(res.data.chats);
 
       } catch (err) {

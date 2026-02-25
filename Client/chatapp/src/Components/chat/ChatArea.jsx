@@ -13,29 +13,44 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
   const bottomRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
 
-  const socket = getSocket();
-  console.log("selected chat", selectedChat)
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket || !user) return;
+
+    socket.emit("setup", user);
+  }, [user]);
+  // console.log("selected chat", selectedChat)
   // Scroll to bottom when new message comes
 
-
-
+  // join room when chat changes
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const socket = getSocket()
+    if (!socket || !selectedChat) return;
 
-  //  Listen for real-time incoming messages
+    socket.emit("join chat", selectedChat._id);
+
+  }, [selectedChat]);
+
+  // listen for messages
   useEffect(() => {
+    const socket = getSocket();
     if (!socket) return;
 
-    socket.on("message received", (newMessage) => {
+    const handler = (newMessage) => {
       if (selectedChat && newMessage.chat._id === selectedChat._id) {
         setMessages((prev) => [...prev, newMessage]);
       }
-    });
+    };
 
-    return () => socket.off("message received");
-  }, [socket, selectedChat]);
-  const chatBoxUser = selectedChat?.users?.filter(suser => suser._id!=user.id);
+    socket.on("message received", handler);
+
+    return () => socket.off("message received", handler);
+
+  }, [selectedChat]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  const chatBoxUser = selectedChat?.users?.filter(suser => suser._id != user.id);
   if (!selectedChat) {
     return (
       <div className="flex flex-1 items-center justify-center text-muted-foreground">
@@ -55,16 +70,22 @@ export function ChatArea({ selectedChat, messages, setMessages }) {
         content: messageToSend,
         chatId: selectedChat._id,
       });
+      const socket = getSocket();
 
+      if (!socket) {
+        console.log("❌ Socket not ready");
+        return;
+      }
       const newMessage = res.data.message;
-
       setMessages((prev) => [...prev, newMessage]);
+      // console.log("socket is:", socket);
+      // console.log("🚀 Emitting new message:", newMessage);
       socket.emit("new message", newMessage);
     } catch (err) {
       console.log("Send message error:", err);
     }
   };
-  console.log("chatbooox",chatBoxUser)
+
 
   return (
     <div className="flex h-full flex-1 flex-col bg-background">

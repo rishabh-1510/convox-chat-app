@@ -4,7 +4,7 @@ const configureSocket = (server) => {
   const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-      origin: "http://localhost:3000", // later restrict to frontend URL
+      origin: "http://localhost:5173", // later restrict to frontend URL
       methods: ["GET", "POST"],
     },
   });
@@ -16,13 +16,13 @@ const configureSocket = (server) => {
     // SETUP USER (JOIN PERSONAL ROOM)
     // ================================
     socket.on("setup", (userData) => {
-      if (!userData || !userData._id) {
+      if (!userData || !userData.id) {
         console.log("⚠️ Invalid user data in setup:", userData);
         return;
       }
 
-      socket.join(userData._id);
-      console.log("User joined personal room:", userData._id);
+      socket.join(userData.id);
+      console.log("User joined personal room:", userData.id);
       socket.emit("connected");
     });
 
@@ -30,11 +30,17 @@ const configureSocket = (server) => {
     // ================================
     // JOIN CHAT ROOM
     // ================================
-    socket.on("join chat", (chatId) => {
-      socket.join(chatId);
-      console.log(`User joined chat: ${chatId}`);
-    });
+    // socket.on("new message", (newMessage) => {
+    //   console.log("📨 New message received on server");
+    //   console.log("Chat ID:", newMessage.chat);
 
+    //   const chatId =
+    //     typeof newMessage.chat === "object"
+    //       ? newMessage.chat._id
+    //       : newMessage.chat;
+
+    //   socket.to(chatId).emit("message received", newMessage);
+    // });
     // ================================
     // NEW MESSAGE
     // ================================
@@ -43,11 +49,13 @@ const configureSocket = (server) => {
 
       if (!chat.users) return;
 
-      chat.users.forEach((user) => {
-        // don't send message back to sender
-        if (user._id === newMessage.sender._id) return;
+      chat.users.forEach((userId) => {
+        // don't send to sender
+        if (String(userId) === String(newMessage.sender._id)) return;
 
-        socket.to(user._id).emit("message received", newMessage);
+        console.log("📤 Sending to user room:", userId);
+
+        socket.to(userId).emit("message received", newMessage);
       });
     });
 
