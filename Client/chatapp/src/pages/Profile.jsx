@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { Camera, ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../Components/ui/avatar";
 import { Button } from "../Components/ui/button";
@@ -6,16 +6,14 @@ import { Input } from "../Components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import api from "../services/api";
 import { toast } from "sonner";
-import { setCredentials, setLoading ,updateUser} from "../redux/slices/authSlice";
+import { setLoading ,updateUser} from "../redux/slices/authSlice";
 
 const Profile = () => {
   const { loading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // console.log('user is ', user)
   const SaveChangesHandler = async () => {
     try {
       dispatch(setLoading(true));
