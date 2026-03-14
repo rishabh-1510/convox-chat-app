@@ -5,6 +5,7 @@ const {
   getMe,
   searchUsers,
   updateProfile,
+  getAllUsers,
 } = require("../controllers/user");
 
 const { auth } = require("../middlwares/auth");
@@ -17,5 +18,7 @@ router.get("/search", auth, searchUsers);
 
 // Update profile
 router.put("/update", auth, updateProfile);
+
+router.get('/getAllUsers' ,auth,getAllUsers);
 
 module.exports = router; 

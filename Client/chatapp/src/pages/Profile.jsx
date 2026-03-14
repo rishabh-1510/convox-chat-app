@@ -32,7 +32,7 @@ const Profile = () => {
       const update = await api.put("/user/update", formData, {
         withCredentials: true,
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type":"multipart/form-data",
         },
       });
 

@@ -53,7 +53,7 @@ const Login = () => {
     if (user) {
       navigate('/chat')
     }
-  }, [])
+  },[])
   return (
     <div className="flex min-h-screen bg-background">
       {/* Left — Login Form */}

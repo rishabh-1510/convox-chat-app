@@ -22,7 +22,7 @@ exports.getMe = async (req, res) => {
     return res.status(200).json({
       success: true,
       user,
-      
+
     });
 
   } catch (error) {
@@ -125,5 +125,30 @@ exports.updateProfile = async (req, res) => {
       success: false,
       message: "Failed to update profile",
     });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+
+    const users = await User
+      .find({ _id: { $ne: req.user._id } })
+      .select("-password -__v");
+
+    return res.status(200).json({
+      success: true,
+      users,
+      message: "Users fetched successfully",
+    });
+
+  } catch (error) {
+
+    console.error("Get Users Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Problem fetching users",
+    });
+
   }
 };

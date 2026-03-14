@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Search, Users } from "lucide-react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar,AvatarFallback } from "../ui/avatar";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
@@ -13,7 +13,7 @@ const allUsers = [
   { id: "6", name: "Nina Patel", avatar: "NP", color: "from-cyan-500 to-blue-600" },
 ];
 
-export function CreateGroupModal({ open, onClose }) {
+export function CreateGroupModal({ open, onClose }){
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState([allUsers[0], allUsers[3]]);
