@@ -6,9 +6,12 @@ import { Input } from "../Components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../Components/ui/input-otp";
 import api from "../services/api";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "../redux/slices/authSlice";
 const Signup = () => {
-  const [loading, setLoading] = useState(false);
-
+   const { loading, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [firstName, setFirstName] = useState("");
@@ -16,7 +19,11 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
-
+  useEffect(() => {
+    if (user) {
+      navigate('/chat')
+    }
+  }, [])
   const handleStepOne = async (e) => {
     e.preventDefault();
 
@@ -26,7 +33,7 @@ const Signup = () => {
     }
 
     try {
-      setLoading(true);
+      dispatch(setLoading(true));
       await api.post("/auth/send-otp", { email });
       setStep(2);
       toast.success("OTP Send Successfully")
@@ -41,7 +48,7 @@ const Signup = () => {
       toast.error(message);
     }
     finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -55,7 +62,7 @@ const Signup = () => {
     }
 
     try {
-      setLoading(true);
+      dispatch(setLoading(true));
 
       const res = await api.post("/auth/signup", {
         firstName,
@@ -71,7 +78,7 @@ const Signup = () => {
       console.log(error);
       toast.error("Signup Failed");
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 

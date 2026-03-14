@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, Lock, Mail, Zap, Shield, Users } from "lucide-react";
 import { Button } from "../Components/ui/button";
@@ -12,7 +12,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector((state) => state.auth);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -48,7 +49,11 @@ const Login = () => {
       dispatch(setLoading(false));
     }
   };
-
+  useEffect(() => {
+    if (user) {
+      navigate('/chat')
+    }
+  }, [])
   return (
     <div className="flex min-h-screen bg-background">
       {/* Left — Login Form */}

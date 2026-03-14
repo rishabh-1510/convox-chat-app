@@ -7,7 +7,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// 🔐 Attach token from Redux (NOT directly from localStorage)
+//  Attach token from Redux (NOT directly from localStorage)
 api.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.token;
@@ -21,7 +21,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🚨 Global 401 handler
+//  Global 401 handler
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -40,3 +40,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+
