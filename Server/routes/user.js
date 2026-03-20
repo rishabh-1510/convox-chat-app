@@ -19,6 +19,6 @@ router.get("/search", auth, searchUsers);
 // Update profile
 router.put("/update", auth, updateProfile);
 
-router.get('/getAllUsers' ,auth,getAllUsers);
+router.get('/getAllUsers',auth,getAllUsers);
 
 module.exports = router; 

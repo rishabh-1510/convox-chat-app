@@ -1,41 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Search, Users } from "lucide-react";
-import { Avatar,AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import api from "../../services/api";
+import { toast } from "sonner";
 
-const allUsers = [
-  { id: "1", name: "Sarah Chen", avatar: "SC", color: "from-blue-500 to-indigo-600" },
-  { id: "2", name: "Marcus Webb", avatar: "MW", color: "from-emerald-500 to-teal-600" },
-  { id: "3", name: "Olivia Park", avatar: "OP", color: "from-orange-500 to-rose-600" },
-  { id: "4", name: "James Liu", avatar: "JL", color: "from-violet-500 to-purple-600" },
-  { id: "5", name: "Emily Torres", avatar: "ET", color: "from-pink-500 to-fuchsia-600" },
-  { id: "6", name: "Nina Patel", avatar: "NP", color: "from-cyan-500 to-blue-600" },
-];
+export function CreateGroupModal({ open, onClose }) {
 
-export function CreateGroupModal({ open, onClose }){
+  const [allUsers, setAllUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState([allUsers[0], allUsers[3]]);
 
+  const [selected, setSelected] = useState([]);
+  const safeSelected = selected || [];
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      try {
+        const res = await api.get('user/getAllUsers');
+        console.log(res?.data?.users);
+        setAllUsers(res?.data?.users)
+
+
+      } catch (error) {
+        console.log(error);
+
+      }
+
+    }
+    fetchAllUsers();
+  }, [])
   if (!open) return null;
 
   const filtered = allUsers.filter(
     (u) =>
-      !selected.find((s) => s.id === u.id) &&
-      u.name.toLowerCase().includes(search.toLowerCase())
+      !safeSelected.find((s) => s?._id === u?._id) &&
+      (u.firstName || "").toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleUser = (user) => {
     setSelected((prev) =>
-      prev.find((s) => s.id === user.id)
-        ? prev.filter((s) => s.id !== user.id)
+      prev?.find((s) => s._id === user._id)
+        ? prev.filter((s) => s._id !== user._id)
         : [...prev, user]
     );
   };
 
   const handleCreate = () => {
-    if (!groupName.trim() || selected.length < 2) return;
+    if (!groupName.trim() || selected?.length < 2) return;
 
     // frontend only
     console.log("Group name:", groupName);
@@ -58,7 +70,7 @@ export function CreateGroupModal({ open, onClose }){
 
       {/* Modal */}
       <div className="relative w-full max-w-md rounded-2xl border border-border/50 bg-card/80 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl">
-        
+
         {/* Close */}
         <button
           onClick={onClose}
@@ -110,23 +122,23 @@ export function CreateGroupModal({ open, onClose }){
         </div>
 
         {/* Selected Users */}
-        {selected.length > 0 && (
+        {selected?.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {selected.map((user) => (
               <div
-                key={user.id}
+                key={user._id}
                 className="flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary py-1 pl-1 pr-2.5"
               >
                 <Avatar className="h-6 w-6">
+                  <AvatarImage src={user?.avatar} />
                   <AvatarFallback
-                    className={`bg-gradient-to-br ${user.color} text-[9px] font-semibold text-white`}
+                    className={`bg-gradient-to-br ${user?.color} text-[9px] font-semibold text-white`}
                   >
-                    {user.avatar}
                   </AvatarFallback>
                 </Avatar>
 
                 <span className="text-xs font-medium">
-                  {user.name.split(" ")[0]}
+                  {user?.firstName.split(" ")[0]}
                 </span>
 
                 <button
@@ -145,18 +157,18 @@ export function CreateGroupModal({ open, onClose }){
           <div className="mt-4 max-h-36 space-y-1 overflow-y-auto rounded-xl border border-border/50 bg-muted/30 p-2">
             {filtered.map((user) => (
               <button
-                key={user.id}
+                key={user._id}
                 onClick={() => toggleUser(user)}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 hover:bg-secondary"
               >
                 <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.avatar} />
                   <AvatarFallback
-                    className={`bg-gradient-to-br ${user.color} text-[10px] font-semibold text-white`}
+                    className={`bg-gradient-to-br ${user?.color} text-[10px] font-semibold text-white`}
                   >
-                    {user.avatar}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm">{user.name}</span>
+                <span className="text-sm"> {user?.firstName} {user?.lastName}</span>
               </button>
             ))}
           </div>
@@ -168,7 +180,7 @@ export function CreateGroupModal({ open, onClose }){
           disabled={!groupName.trim() || selected.length < 2}
           className="mt-6 w-full rounded-xl bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] py-5 text-sm font-semibold text-white hover:scale-[1.02] border-0 disabled:opacity-40"
         >
-          Create Group ({selected.length} members)
+          Create Group ({selected?.length} members)
         </Button>
       </div>
     </div>
