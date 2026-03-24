@@ -190,17 +190,17 @@ export function CreateGroupModal({ open, onClose }) {
 
         {/* Create Button */}
         {
-          loading?(<div>
-                          <div className="flex justify-center items-center mt-2 py-5">
-                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                          </div>
-                        </div>):(<Button
-          onClick={handleCreate}
-          disabled={!groupName.trim() || selected.length < 2}
-          className="mt-6 w-full rounded-xl bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] py-5 text-sm font-semibold text-white hover:scale-[1.02] border-0 disabled:opacity-40"
-        >
-          Create Group ({selected?.length} members)
-        </Button>)
+          loading ? (<div>
+            <div className="flex justify-center items-center mt-2 py-5">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          </div>) : (<Button
+            onClick={handleCreate}
+            disabled={!groupName.trim() || selected.length < 2}
+            className="mt-6 w-full rounded-xl bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] py-5 text-sm font-semibold text-white hover:scale-[1.02] border-0 disabled:opacity-40"
+          >
+            Create Group ({selected?.length} members)
+          </Button>)
         }
 
       </div>
