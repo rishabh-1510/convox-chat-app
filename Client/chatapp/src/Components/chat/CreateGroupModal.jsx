@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { X, Search, Users } from "lucide-react";
+import { X, Search, Users, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import api from "../../services/api";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "../../redux/slices/authSlice";
 
 export function CreateGroupModal({ open, onClose }) {
-
+  const dispatch = useDispatch();
   const [allUsers, setAllUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
-
+  const loading = useSelector((state) => state.auth.loading);
   const [selected, setSelected] = useState([]);
   const safeSelected = selected || [];
   useEffect(() => {
@@ -19,12 +21,9 @@ export function CreateGroupModal({ open, onClose }) {
       try {
         const res = await api.get('user/getAllUsers');
         console.log(res?.data?.users);
-        setAllUsers(res?.data?.users)
-
-
+        setAllUsers(res?.data?.users);
       } catch (error) {
         console.log(error);
-
       }
 
     }
@@ -46,12 +45,27 @@ export function CreateGroupModal({ open, onClose }) {
     );
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!groupName.trim() || selected?.length < 2) return;
 
     // frontend only
-    console.log("Group name:", groupName);
-    console.log("Members:", selected);
+    try {
+      dispatch(setLoading(true));
+      const grp = await api.post('chat/group', { name: groupName, users: selected });
+      if (grp.data.success) {
+        toast.success('Group created Successfully');
+        console.log('group is', grp)
+      } else {
+        toast.error('Something went wrong');
+      }
+
+
+    } catch (error) {
+      console.error(error);
+      toast.error('Something went wrong');
+    } finally {
+      setLoading(false);
+    }
 
     // reset
     setGroupName("");
@@ -175,13 +189,20 @@ export function CreateGroupModal({ open, onClose }) {
         )}
 
         {/* Create Button */}
-        <Button
+        {
+          loading?(<div>
+                          <div className="flex justify-center items-center mt-2 py-5">
+                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          </div>
+                        </div>):(<Button
           onClick={handleCreate}
           disabled={!groupName.trim() || selected.length < 2}
           className="mt-6 w-full rounded-xl bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] py-5 text-sm font-semibold text-white hover:scale-[1.02] border-0 disabled:opacity-40"
         >
           Create Group ({selected?.length} members)
-        </Button>
+        </Button>)
+        }
+
       </div>
     </div>
   );
