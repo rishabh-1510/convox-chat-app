@@ -30,12 +30,12 @@ export function ChatSiderbar({ selectedChat, setSelectedChat }) {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // 🔹 Fetch existing chats
+  //  Fetch existing chats
   useEffect(() => {
     const fetchChats = async () => {
       try {
         const res = await api.get("/chat");
-        
+
         setChats(res.data.chats);
 
       } catch (err) {
@@ -168,17 +168,33 @@ export function ChatSiderbar({ selectedChat, setSelectedChat }) {
               </div>
             ) : (
               chats.map((chat, i) => {
-                const otherUser = chat.users.find(
-                  (u) => u._id !== user.id   // IMPORTANT: use user.id (not _id)
-                );
+                let name, avatar;
+                if (chat.isGroupChat) {
+                  //Group Chat
+                  name = chat.chatName;
+                  avatar = (
+                    <div className="flex items-center justify-center h-full w-full text-white text-xs">
+                      {chat.chatName?.charAt(0)}
+                    </div>
+                  );
+                } else {
+                  //Private Chat
+                  const otherUser = chat.users.find(
+                    (u) => u._id !== user.id
+                  );
+
+                  name = otherUser?.firstName;
+                  avatar = <img src={otherUser?.avatar} />;
+                }
+
 
                 return (
                   <ContactItem
                     key={chat._id}
                     contact={{
                       _id: chat._id,
-                      name: otherUser?.firstName,
-                      avatar: <img src={`${otherUser?.avatar}`}/>,
+                      name,
+                      avatar,
                       online: false,
                       lastMessage: chat.latestMessage?.content || "",
                       unread: 0,
