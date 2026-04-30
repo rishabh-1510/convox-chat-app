@@ -26,7 +26,7 @@ const Login = () => {
     try {
 
       dispatch(setLoading(true));
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/api/v1/auth/login", { email, password });
       if (res.data.success) {
         dispatch(
           setCredentials({

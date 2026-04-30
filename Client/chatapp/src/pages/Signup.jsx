@@ -34,7 +34,7 @@ const Signup = () => {
 
     try {
       dispatch(setLoading(true));
-      await api.post("/auth/send-otp", { email });
+      await api.post("api/v1/auth/send-otp", { email });
       setStep(2);
       toast.success("OTP Send Successfully")
     } catch (err) {
@@ -64,7 +64,7 @@ const Signup = () => {
     try {
       dispatch(setLoading(true));
 
-      const res = await api.post("/auth/signup", {
+      const res = await api.post("api/v1/auth/signup", {
         firstName,
         lastName,
         email,
