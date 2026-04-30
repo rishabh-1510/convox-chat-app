@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Camera, ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../Components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../Components/ui/button";
 import { Input } from "../Components/ui/input";
 import { useNavigate } from "react-router-dom";
