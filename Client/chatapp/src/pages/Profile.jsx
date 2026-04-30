@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Camera, ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../Components/ui/avatar";
-import { Button } from "../Components/ui/button";
-import { Input } from "../Components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "../components_temp/ui/avatar";
+import { Button } from "../components_temp/ui/button";
+import { Input } from "../components_temp/ui/input";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChatSiderbar } from "../Components/chat/ChatSiderbar";
-import { ChatArea } from "../Components/chat/ChatArea";
+import { ChatSiderbar } from "../components_temp/chat/ChatSiderbar";
+import { ChatArea } from "../components_temp/chat/ChatArea";
 import api from "../services/api";
 const Chat = () => {
   const [selectedChat, setSelectedChat] = useState(null);
