@@ -4,9 +4,10 @@ const configureSocket = (server) => {
   const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-      origin: "http://localhost:5173", // later restrict to frontend URL
-      methods: ["GET", "POST"],
-    },
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
   });
 
   io.on("connection", (socket) => {
