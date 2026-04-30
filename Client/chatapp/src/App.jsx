@@ -9,7 +9,7 @@ import Chat from "./pages/chat"
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Profile from "./pages/profile";
+import Profile from "./pages/Profile";
 // import Index from "./pages/Index";
 // import Profile from "./pages/Profile";
 // import NotFound from "./pages/NotFound";
