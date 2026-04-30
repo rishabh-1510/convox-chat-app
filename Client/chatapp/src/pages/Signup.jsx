@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, ArrowLeft, User, Mail, Lock } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "../components/ui/input-otp";
+import { Button } from "../Components/ui/button";
+import { Input } from "../Components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../Components/ui/input-otp";
 import api from "../services/api";
 import { toast } from "sonner";
 import { useEffect } from "react";
@@ -34,7 +34,7 @@ const Signup = () => {
 
     try {
       dispatch(setLoading(true));
-      await api.post("api/v1/auth/send-otp", { email });
+      await api.post("/auth/send-otp", { email });
       setStep(2);
       toast.success("OTP Send Successfully")
     } catch (err) {
@@ -64,7 +64,7 @@ const Signup = () => {
     try {
       dispatch(setLoading(true));
 
-      const res = await api.post("api/v1/auth/signup", {
+      const res = await api.post("/auth/signup", {
         firstName,
         lastName,
         email,

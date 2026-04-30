@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, Lock, Mail, Zap, Shield, Users } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "../Components/ui/button";
+import { Input } from "../Components/ui/input";
 import { toast } from "sonner"
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setCredentials } from "../redux/slices/authSlice";
@@ -26,7 +26,7 @@ const Login = () => {
     try {
 
       dispatch(setLoading(true));
-      const res = await api.post("/api/v1/auth/login", { email, password });
+      const res = await api.post("/auth/login", { email, password });
       if (res.data.success) {
         dispatch(
           setCredentials({
