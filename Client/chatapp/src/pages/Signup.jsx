@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, ArrowLeft, User, Mail, Lock } from "lucide-react";
-import { Button } from "../components_temp/ui/button";
-import { Input } from "../components_temp/ui/input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "../components_temp/ui/input-otp";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../components/ui/input-otp";
 import api from "../services/api";
 import { toast } from "sonner";
 import { useEffect } from "react";

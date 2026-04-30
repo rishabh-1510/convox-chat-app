@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquare, ArrowRight, Lock, Mail, Zap, Shield, Users } from "lucide-react";
-import { Button } from "../components_temp/ui/button";
-import { Input } from "../components_temp/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { toast } from "sonner"
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setCredentials } from "../redux/slices/authSlice";
