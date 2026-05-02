@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../redux/slices/authSlice";
 const Signup = () => {
-   const { loading, user } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch()
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -181,10 +181,17 @@ const Signup = () => {
                 </div>
 
                 <Button
+                  disabled={loading}
                   type="submit"
                   className="h-11 w-full gap-2 bg-gradient-to-r from-[hsl(228,76%,55%)] to-[hsl(252,70%,50%)] text-sm font-semibold shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
-                >
-                  Continue <ArrowRight className="h-4 w-4" />
+                >{
+                    loading ? ("Signing Up..") : (<div className="flex items-center justify-center">
+                      Continue
+                      <ArrowRight className="h-4 w-4 ml-1 mt-1" />
+
+                    </div>)
+                  }
+                  
                 </Button>
               </form>
             </>
