@@ -1,31 +1,32 @@
-const noodemailer = require("nodemailer");
-require('dotenv').config();
-const mailSender = async(email,title,body)=>{
-    try{
-        let transporter = noodemailer.createTransport({
-            host:process.env.MAIL_HOST,
-            port:465,
-            secure:true,
-            auth:{
-                user:process.env.MAIL_USER,
-                pass:process.env.MAIL_PASS,
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-            }
-        })
+const mailSender = async (email, title, body) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // ✅ more reliable than custom host
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
 
-        let info =await transporter.sendMail({
-            from:"Study Notion",
-            to:`${email}`,
-            subject:`${title}`,
-            html:`${body}`
-        })
+    const info = await transporter.sendMail({
+      from: `"ConvoX" <${process.env.MAIL_USER}>`,
+      to: email,
+      subject: title,
+      html: body,
+    });
 
-        console.log(info);
-        return info;
-    }catch(err){
-        console.log(err.message);
-         
-    }
-}
+    console.log("EMAIL SENT:", info.response);
 
-module.exports =mailSender;
+    return info;
+  } catch (err) {
+    console.error("MAIL ERROR FULL:", err); // ✅ full error
+
+    //  VERY IMPORTANT
+    throw err; // don't swallow error
+  }
+};
+
+module.exports = mailSender;

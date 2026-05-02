@@ -3,12 +3,11 @@ const User = require("../models/User");
 const OTP = require("../models/Otp");
 const jwt = require("jsonwebtoken")
 const otpGenerator = require("otp-generator");
-
+const sendEmail = require("../utils/mailSender")
 exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
-    //  Validate email
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -16,7 +15,6 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    //  Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -25,21 +23,19 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    //  Delete previous OTPs for this email
     await OTP.deleteMany({ email });
 
-    // Generate OTP
     const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
 
-    //  Save OTP (email is sent via pre-save hook)
-    await OTP.create({
-      email,
-      otp,
-    });
+    // ✅ save OTP
+    await OTP.create({ email, otp });
+
+    // ✅ send email (controlled)
+    await sendEmail(email, otp);
 
     return res.status(200).json({
       success: true,
@@ -48,13 +44,13 @@ exports.sendOtp = async (req, res) => {
 
   } catch (error) {
     console.error("Send OTP error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to send OTP",
     });
   }
 };
-
 // SIGNUP CONTROLLER
 exports.signup = async (req, res) => {
   try {
