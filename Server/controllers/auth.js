@@ -34,7 +34,7 @@ exports.sendOtp = async (req, res) => {
 
     // ✅ save OTP
     await OTP.create({ email, otp });
-
+    
     // ✅ send email (controlled)
     await sendEmail(email, otp);
 

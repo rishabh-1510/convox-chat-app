@@ -6,12 +6,19 @@ const mailSender = async (email, title, body) => {
   console.log("MAIL_PASS exists:", !!process.env.MAIL_PASS);
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
+    await transporter.verify();
+    console.log("SMTP VERIFIED");
     const info = await transporter.sendMail({
       from: `"ConvoX" <${process.env.MAIL_USER}>`,
       to: email,
