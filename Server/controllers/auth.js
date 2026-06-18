@@ -34,9 +34,13 @@ exports.sendOtp = async (req, res) => {
 
     // ✅ save OTP
     await OTP.create({ email, otp });
-    
+
     // ✅ send email (controlled)
-    await sendEmail(email, otp);
+    await sendEmail(
+      email,
+      "Your OTP - ConvoX",
+      `<h2>Your OTP is <b>${otp}</b></h2><p>It expires in 5 minutes.</p>`
+    );
 
     return res.status(200).json({
       success: true,
