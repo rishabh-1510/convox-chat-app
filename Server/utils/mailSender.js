@@ -2,18 +2,16 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const mailSender = async (email, title, body) => {
+  console.log("MAIL_USER:", process.env.MAIL_USER);
+  console.log("MAIL_PASS exists:", !!process.env.MAIL_PASS);
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail", // ✅ more reliable than custom host
-      host: "smtp.gmail.com",
-      port: 465,        // 👈 use 465 not 587
-      secure: true,
+      service: "gmail",
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
     });
-
     const info = await transporter.sendMail({
       from: `"ConvoX" <${process.env.MAIL_USER}>`,
       to: email,
