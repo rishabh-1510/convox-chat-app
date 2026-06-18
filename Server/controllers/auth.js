@@ -3,7 +3,9 @@ const User = require("../models/User");
 const OTP = require("../models/Otp");
 const jwt = require("jsonwebtoken")
 const otpGenerator = require("otp-generator");
-const sendEmail = require("../utils/mailSender")
+const sendEmail = require("../utils/mailSender");
+const dotenv = require('dotenv');
+dotenv.config();
 exports.sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -14,6 +16,8 @@ exports.sendOtp = async (req, res) => {
         message: "Email is required",
       });
     }
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -63,7 +67,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
@@ -88,14 +92,14 @@ exports.signup = async (req, res) => {
         message: "Invalid OTP",
       });
     }
-    const hashedPassword = await bcrypt.hash(password,10);  
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       firstName,
       lastName,
       email,
-      password:hashedPassword,
-      avatar:`https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+      password: hashedPassword,
+      avatar: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
     await OTP.deleteMany({ email });
     return res.status(201).json({
