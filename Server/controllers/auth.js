@@ -49,7 +49,7 @@ exports.sendOtp = async (req, res) => {
 
   } catch (error) {
     console.error("Send OTP error:", error);
-
+    console.error("Send OTP error:", error.message, error.response?.data);
     return res.status(500).json({
       success: false,
       message: "Failed to send OTP",
